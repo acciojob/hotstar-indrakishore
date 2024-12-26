@@ -27,6 +27,7 @@ public class SubscriptionService {
         //Save The subscription Object into the Db and return the total Amount that user has to pay
         Subscription subscription = new Subscription();
         subscription = convertDtoToEntity(subscriptionEntryDto);
+        subscription.setNoOfScreensSubscribed(subscription.getNoOfScreensSubscribed());
         int totalAmount = calculateTotalAmount(subscription.getSubscriptionType(), subscription.getNoOfScreensSubscribed());
         subscription.setTotalAmountPaid(totalAmount);
         subscriptionRepository.save(subscription);
@@ -68,18 +69,19 @@ public class SubscriptionService {
         return subscription;
     }
 
-    public Integer upgradeSubscription(Integer userId)throws Exception{
-
-        //If you are already at an ElITE subscription : then throw Exception ("Already the best Subscription")
-        //In all other cases just try to upgrade the subscription and tell the difference of price that user has to pay
-        //update the subscription in the repository
-        //return the difference in the price that user has to pay
+    public Integer upgradeSubscription(Integer userId) throws Exception {
         User user = userRepository.findById(userId).get();
         Subscription subscription = user.getSubscription();
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
+
+        if (subscription.getTotalAmountPaid() == 0) {
+            throw new Exception("Current subscription not paid for");
+        }
+
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
             throw new Exception("Already the best Subscription");
         }
+
         SubscriptionType newSubscriptionType = SubscriptionType.values()[subscriptionType.ordinal() + 1];
         subscription.setSubscriptionType(newSubscriptionType);
         int newTotalAmount = calculateTotalAmount(newSubscriptionType, subscription.getNoOfScreensSubscribed());
