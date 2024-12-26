@@ -42,7 +42,7 @@ public class SubscriptionService {
                 basePrice = 500;
                 screenPrice = 200;
                 break;
-            case STANDARD:
+            case PRO:
                 basePrice = 800;
                 screenPrice = 250;
                 break;
