@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
+
 @Service
 public class SubscriptionService {
 
@@ -22,12 +23,8 @@ public class SubscriptionService {
     @Autowired
     UserRepository userRepository;
 
-    public Integer buySubscription(SubscriptionEntryDto subscriptionEntryDto){
-
-        //Save The subscription Object into the Db and return the total Amount that user has to pay
-        Subscription subscription = new Subscription();
-        subscription = convertDtoToEntity(subscriptionEntryDto);
-        subscription.setNoOfScreensSubscribed(subscription.getNoOfScreensSubscribed());
+    public Integer buySubscription(SubscriptionEntryDto subscriptionEntryDto) {
+        Subscription subscription = convertDtoToEntity(subscriptionEntryDto);
         int totalAmount = calculateTotalAmount(subscription.getSubscriptionType(), subscription.getNoOfScreensSubscribed());
         subscription.setTotalAmountPaid(totalAmount);
         subscriptionRepository.save(subscription);
@@ -61,16 +58,15 @@ public class SubscriptionService {
     private Subscription convertDtoToEntity(SubscriptionEntryDto subscriptionEntryDto) {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionType(subscriptionEntryDto.getSubscriptionType());
-//        subscription.setNoOfScreensSubscribed(subscriptionEntryDto.getNoOfScreensSubscribed());
+        subscription.setNoOfScreensSubscribed(subscriptionEntryDto.getNoOfScreensSubscribed());
         subscription.setStartSubscriptionDate(new Date());
-//        subscription.setTotalAmountPaid(subscriptionEntryDto.getTotalAmountPaid());
-        User user = userRepository.findById(subscriptionEntryDto.getUserId()).get();
+        User user = userRepository.findById(subscriptionEntryDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
         subscription.setUser(user);
         return subscription;
     }
 
     public Integer upgradeSubscription(Integer userId) throws Exception {
-        User user = userRepository.findById(userId).get();
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Subscription subscription = user.getSubscription();
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
 
@@ -91,12 +87,8 @@ public class SubscriptionService {
         return difference;
     }
 
-    public Integer calculateTotalRevenueOfHotstar(){
-
-        //We need to find out total Revenue of hotstar : from all the subscriptions combined
-        //Hint is to use findAll function from the SubscriptionDb
+    public Integer calculateTotalRevenueOfHotstar() {
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
     }
-
 }

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// src/main/java/com/driver/services/WebSeriesService.java
+
 @Service
 public class WebSeriesService {
 
@@ -19,31 +21,21 @@ public class WebSeriesService {
     @Autowired
     ProductionHouseRepository productionHouseRepository;
 
-
     public Integer addWebSeries(WebSeriesEntryDto webSeriesEntryDto) throws Exception {
-
-        // Check if the series name is already present in the database
         if (webSeriesRepository.findBySeriesName(webSeriesEntryDto.getSeriesName()) != null) {
             throw new Exception("Series is already present");
         }
 
-        // Check if the production house ID exists in the database
         ProductionHouse productionHouse = productionHouseRepository.findById(webSeriesEntryDto.getProductionHouseId())
                 .orElseThrow(() -> new Exception("Production house not found"));
 
-        // Convert DTO to entity and set the production house
         WebSeries webSeries = convertDtoToEntity(webSeriesEntryDto);
         webSeries.setProductionHouse(productionHouse);
+        webSeries = webSeriesRepository.save(webSeries);
 
-        // Save the web series
-        webSeriesRepository.save(webSeries);
-
-        // Update the ratings of the production house
         List<WebSeries> webSeriesList = webSeriesRepository.findByProductionHouseId(productionHouse.getId());
         double averageRating = webSeriesList.stream().mapToDouble(WebSeries::getRating).average().orElse(0.0);
         productionHouse.setRatings(averageRating);
-
-        // Save the updated production house
         productionHouseRepository.save(productionHouse);
 
         return webSeries.getId();
@@ -53,9 +45,6 @@ public class WebSeriesService {
         WebSeries webSeries = new WebSeries();
         webSeries.setSeriesName(webSeriesEntryDto.getSeriesName());
         webSeries.setRating(webSeriesEntryDto.getRating());
-        ProductionHouse productionHouse = productionHouseRepository.findById(webSeriesEntryDto.getProductionHouseId()).get();
-        webSeries.setProductionHouse(productionHouse);
         return webSeries;
     }
-
 }
