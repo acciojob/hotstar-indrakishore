@@ -66,7 +66,11 @@ public class SubscriptionService {
     }
 
     public Integer upgradeSubscription(Integer userId) throws Exception {
+
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         Subscription subscription = user.getSubscription();
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
 
@@ -88,6 +92,9 @@ public class SubscriptionService {
     }
 
     public Integer calculateTotalRevenueOfHotstar() {
+        if (subscriptionRepository == null) {
+            throw new IllegalStateException("Repository not initialized");
+        }
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
     }
