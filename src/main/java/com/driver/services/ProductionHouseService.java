@@ -14,10 +14,18 @@ public class ProductionHouseService {
     ProductionHouseRepository productionHouseRepository;
 
     public Integer addProductionHouseToDb(ProductionHouseEntryDto productionHouseEntryDto){
-
-        return  null;
+        ProductionHouse productionHouse = new ProductionHouse();
+        productionHouse = convertDtoToEntity(productionHouseEntryDto);
+        productionHouseRepository.save(productionHouse);
+        return productionHouse.getId();
     }
 
+    private ProductionHouse convertDtoToEntity(ProductionHouseEntryDto productionHouseEntryDto) {
+        ProductionHouse productionHouse = new ProductionHouse();
+        productionHouse.setName(productionHouseEntryDto.getName());
+        productionHouse.setRatings(0);
+        return productionHouse;
+    }
 
 
 }
