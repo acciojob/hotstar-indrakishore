@@ -24,7 +24,7 @@ public class SubscriptionController {
     }
 
     @PostMapping("/buy")
-    public Integer buySubscription(SubscriptionEntryDto subscriptionEntryDto){
+    public Integer buySubscription(@RequestBody SubscriptionEntryDto subscriptionEntryDto){
 
         //We need to buy subscription and save its relevant subscription to the db and return the finalAmount
         return subscriptionService.buySubscription(subscriptionEntryDto);
@@ -41,6 +41,7 @@ public class SubscriptionController {
         try{
             return subscriptionService.upgradeSubscription(userId);
         }catch (Exception e){
+            System.out.println(e.getMessage());
             return -1;
         }
     }

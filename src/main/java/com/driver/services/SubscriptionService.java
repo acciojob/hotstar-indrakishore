@@ -3,6 +3,7 @@ package com.driver.services;
 
 import com.driver.EntryDto.SubscriptionEntryDto;
 import com.driver.EntryDto.SubscriptionRequestDto;
+import com.driver.exceptions.AlreadyEliteSubscriptionException;
 import com.driver.exceptions.SubscriptionNotPaidException;
 import com.driver.exceptions.UserNotFoundException;
 import com.driver.model.Subscription;
@@ -55,7 +56,7 @@ public class SubscriptionService {
                 throw new IllegalArgumentException("Unknown subscription type: " + subscriptionType);
         }
 
-        return basePrice + screenPrice * noOfScreensSubscribed;
+        return basePrice + (screenPrice * noOfScreensSubscribed);
     }
 
     private Subscription convertDtoToEntity(SubscriptionEntryDto subscriptionEntryDto) {
@@ -85,17 +86,26 @@ public class SubscriptionService {
         }
 
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
-            throw new Exception("Already the best Subscription");
+            throw new AlreadyEliteSubscriptionException("Already the best subscription");
         }
 
+        // Upgrade to next subscription
         SubscriptionType newSubscriptionType = SubscriptionType.values()[subscriptionType.ordinal() + 1];
         subscription.setSubscriptionType(newSubscriptionType);
+
+        // Calculate new total amount
         int newTotalAmount = calculateTotalAmount(newSubscriptionType, subscription.getNoOfScreensSubscribed());
         int difference = newTotalAmount - subscription.getTotalAmountPaid();
+
+        // Set the new total amount paid
         subscription.setTotalAmountPaid(newTotalAmount);
+
+        // Save subscription after update
         subscriptionRepository.save(subscription);
+
         return difference;
     }
+
 
     public Integer calculateTotalRevenueOfHotstar() {
         List<Subscription> subscriptions = subscriptionRepository.findAll();
