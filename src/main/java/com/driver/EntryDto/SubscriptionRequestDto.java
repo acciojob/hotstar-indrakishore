@@ -1,47 +1,34 @@
-package com.driver.model;
+package com.driver.EntryDto;
 
 
-import javax.persistence.*;
+import com.driver.model.SubscriptionType;
+
 import java.util.Date;
 
-@Entity
-@Table
-public class Subscription {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Enumerated(EnumType.STRING)
+public class SubscriptionRequestDto {
+    private int userId;
     private SubscriptionType subscriptionType;
-
     private int noOfScreensSubscribed;
-
     private Date startSubscriptionDate;
-
     private int totalAmountPaid;
 
-    @OneToOne
-    @JoinColumn
-    private User user;
+    public SubscriptionRequestDto() {
+    }
 
-    public Subscription(SubscriptionType subscriptionType, int noOfScreensSubscribed, Date startSubscriptionDate, int totalAmountPaid) {
+    public SubscriptionRequestDto(int userId, SubscriptionType subscriptionType, int noOfScreensSubscribed, Date startSubscriptionDate, int totalAmountPaid) {
+        this.userId = userId;
         this.subscriptionType = subscriptionType;
         this.noOfScreensSubscribed = noOfScreensSubscribed;
         this.startSubscriptionDate = startSubscriptionDate;
         this.totalAmountPaid = totalAmountPaid;
     }
 
-    public Subscription() {
-
+    public int getUserId() {
+        return userId;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public SubscriptionType getSubscriptionType() {
@@ -64,8 +51,8 @@ public class Subscription {
         return startSubscriptionDate;
     }
 
-    public void setStartSubscriptionDate(Date durationOfSubscription) {
-        this.startSubscriptionDate = durationOfSubscription;
+    public void setStartSubscriptionDate(Date startSubscriptionDate) {
+        this.startSubscriptionDate = startSubscriptionDate;
     }
 
     public int getTotalAmountPaid() {
@@ -74,13 +61,5 @@ public class Subscription {
 
     public void setTotalAmountPaid(int totalAmountPaid) {
         this.totalAmountPaid = totalAmountPaid;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

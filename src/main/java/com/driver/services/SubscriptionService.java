@@ -2,6 +2,7 @@ package com.driver.services;
 
 
 import com.driver.EntryDto.SubscriptionEntryDto;
+import com.driver.EntryDto.SubscriptionRequestDto;
 import com.driver.model.Subscription;
 import com.driver.model.SubscriptionType;
 import com.driver.model.User;
@@ -97,5 +98,16 @@ public class SubscriptionService {
         }
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
+    }
+
+    public Subscription createSubscription(SubscriptionRequestDto request) {
+        Subscription subscription = new Subscription();
+        subscription.setUser(userRepository.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        subscription.setSubscriptionType(request.getSubscriptionType());
+        subscription.setNoOfScreensSubscribed(request.getNoOfScreensSubscribed());
+        subscription.setStartSubscriptionDate(new Date());
+        subscription.setTotalAmountPaid(calculateTotalAmount(request.getSubscriptionType(), request.getNoOfScreensSubscribed()));
+        subscriptionRepository.save(subscription);
+        return subscription;
     }
 }

@@ -30,7 +30,6 @@ public class WebSeriesService {
                 .orElseThrow(() -> new Exception("Production house not found"));
 
         WebSeries webSeries = convertDtoToEntity(webSeriesEntryDto);
-        webSeries.setProductionHouse(productionHouse);
         webSeries = webSeriesRepository.save(webSeries);
 
         List<WebSeries> webSeriesList = webSeriesRepository.findByProductionHouseId(productionHouse.getId());
@@ -44,7 +43,10 @@ public class WebSeriesService {
     private WebSeries convertDtoToEntity(WebSeriesEntryDto webSeriesEntryDto) {
         WebSeries webSeries = new WebSeries();
         webSeries.setSeriesName(webSeriesEntryDto.getSeriesName());
+        webSeries.setAgeLimit(webSeriesEntryDto.getAgeLimit());
         webSeries.setRating(webSeriesEntryDto.getRating());
+        webSeries.setSubscriptionType(webSeriesEntryDto.getSubscriptionType());
+        webSeries.setProductionHouse(productionHouseRepository.findById(webSeriesEntryDto.getProductionHouseId()).get());
         return webSeries;
     }
 }
