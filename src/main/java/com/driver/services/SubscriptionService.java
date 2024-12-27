@@ -3,6 +3,8 @@ package com.driver.services;
 
 import com.driver.EntryDto.SubscriptionEntryDto;
 import com.driver.EntryDto.SubscriptionRequestDto;
+import com.driver.exceptions.SubscriptionNotPaidException;
+import com.driver.exceptions.UserNotFoundException;
 import com.driver.model.Subscription;
 import com.driver.model.SubscriptionType;
 import com.driver.model.User;
@@ -19,10 +21,10 @@ import java.util.List;
 public class SubscriptionService {
 
     @Autowired
-    SubscriptionRepository subscriptionRepository;
+    private SubscriptionRepository subscriptionRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     public Integer buySubscription(SubscriptionEntryDto subscriptionEntryDto) {
         Subscription subscription = convertDtoToEntity(subscriptionEntryDto);
@@ -61,22 +63,25 @@ public class SubscriptionService {
         subscription.setSubscriptionType(subscriptionEntryDto.getSubscriptionType());
         subscription.setNoOfScreensSubscribed(subscriptionEntryDto.getNoOfScreensSubscribed());
         subscription.setStartSubscriptionDate(new Date());
-        User user = userRepository.findById(subscriptionEntryDto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(subscriptionEntryDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + subscriptionEntryDto.getUserId()));
         subscription.setUser(user);
         return subscription;
     }
 
     public Integer upgradeSubscription(Integer userId) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
         Subscription subscription = user.getSubscription();
+        if (subscription == null) {
+            throw new IllegalArgumentException("User does not have a subscription");
+        }
+
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
 
         if (subscription.getTotalAmountPaid() == 0) {
-            throw new Exception("Current subscription not paid for");
+            throw new SubscriptionNotPaidException("Current subscription not paid for");
         }
 
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
@@ -93,16 +98,14 @@ public class SubscriptionService {
     }
 
     public Integer calculateTotalRevenueOfHotstar() {
-        if (subscriptionRepository == null) {
-            throw new IllegalStateException("Repository not initialized");
-        }
         List<Subscription> subscriptions = subscriptionRepository.findAll();
         return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
     }
 
     public Subscription createSubscription(SubscriptionRequestDto request) {
         Subscription subscription = new Subscription();
-        subscription.setUser(userRepository.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("User not found")));
+        subscription.setUser(userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getUserId())));
         subscription.setSubscriptionType(request.getSubscriptionType());
         subscription.setNoOfScreensSubscribed(request.getNoOfScreensSubscribed());
         subscription.setStartSubscriptionDate(new Date());
