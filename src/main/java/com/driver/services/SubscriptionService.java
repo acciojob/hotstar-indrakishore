@@ -88,7 +88,7 @@ public class SubscriptionService {
 //        }
 
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
-            throw new Exception("Already the best subscription");
+            throw new Exception("Already the best Subscription");
         }
 
 //        if(subscription.getSubscriptionType().equals(SubscriptionType.BASIC)) {
