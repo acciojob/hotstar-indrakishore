@@ -109,7 +109,13 @@ public class SubscriptionService {
 
     public Integer calculateTotalRevenueOfHotstar() {
         List<Subscription> subscriptions = subscriptionRepository.findAll();
-        return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
+        int totalRevenue = 0;
+
+        for (Subscription sub : subscriptions) {
+            totalRevenue += sub.getTotalAmountPaid();
+        }
+        return totalRevenue;
+//        return subscriptions.stream().mapToInt(Subscription::getTotalAmountPaid).sum();
     }
 
     public Subscription createSubscription(SubscriptionRequestDto request) {
