@@ -71,13 +71,14 @@ public class SubscriptionService {
     }
 
     public Integer upgradeSubscription(Integer userId) throws Exception {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        User user = userRepository.findById(userId).get();
+
 
         Subscription subscription = user.getSubscription();
-        if (subscription == null) {
-            throw new IllegalArgumentException("User does not have a subscription");
-        }
+
+//        if (subscription == null) {
+//            throw new IllegalArgumentException("User does not have a subscription");
+//        }
 
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
 
@@ -86,7 +87,7 @@ public class SubscriptionService {
         }
 
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
-            throw new AlreadyEliteSubscriptionException("Already the best subscription");
+            throw new Exception("Already the best subscription");
         }
 
         // Upgrade to next subscription
