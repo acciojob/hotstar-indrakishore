@@ -14,18 +14,18 @@ public class ProductionHouseService {
     ProductionHouseRepository productionHouseRepository;
 
     public Integer addProductionHouseToDb(ProductionHouseEntryDto productionHouseEntryDto){
-        ProductionHouse productionHouse = new ProductionHouse();
-        productionHouse = convertDtoToEntity(productionHouseEntryDto);
-        productionHouseRepository.save(productionHouse);
+        ProductionHouse productionHouse = new ProductionHouse(productionHouseEntryDto.getName());
+//        productionHouse = convertDtoToEntity(productionHouseEntryDto);
+        productionHouse = productionHouseRepository.save(productionHouse);
         return productionHouse.getId();
     }
 
-    private ProductionHouse convertDtoToEntity(ProductionHouseEntryDto productionHouseEntryDto) {
-        ProductionHouse productionHouse = new ProductionHouse();
-        productionHouse.setName(productionHouseEntryDto.getName());
-        productionHouse.setRatings(0);
-        return productionHouse;
-    }
+//    private ProductionHouse convertDtoToEntity(ProductionHouseEntryDto productionHouseEntryDto) {
+//        ProductionHouse productionHouse = new ProductionHouse();
+//        productionHouse.setName(productionHouseEntryDto.getName());
+//        productionHouse.setRatings(0);
+//        return productionHouse;
+//    }
 
 
 }
