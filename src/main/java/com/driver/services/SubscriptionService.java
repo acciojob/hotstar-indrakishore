@@ -64,9 +64,10 @@ public class SubscriptionService {
         subscription.setSubscriptionType(subscriptionEntryDto.getSubscriptionType());
         subscription.setNoOfScreensSubscribed(subscriptionEntryDto.getNoOfScreensSubscribed());
         subscription.setStartSubscriptionDate(new Date());
-        User user = userRepository.findById(subscriptionEntryDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + subscriptionEntryDto.getUserId()));
+        User user = userRepository.findById(subscriptionEntryDto.getUserId()).get();
         subscription.setUser(user);
+        user.setSubscription(subscription);
+        userRepository.save(user);
         return subscription;
     }
 
@@ -82,13 +83,18 @@ public class SubscriptionService {
 
         SubscriptionType subscriptionType = subscription.getSubscriptionType();
 
-        if (subscription.getTotalAmountPaid() == 0) {
-            throw new SubscriptionNotPaidException("Current subscription not paid for");
-        }
+//        if (subscription.getTotalAmountPaid() == 0) {
+//            throw new SubscriptionNotPaidException("Current subscription not paid for");
+//        }
 
         if (subscriptionType.equals(SubscriptionType.ELITE)) {
             throw new Exception("Already the best subscription");
         }
+
+//        if(subscription.getSubscriptionType().equals(SubscriptionType.BASIC)) {
+//            subscription.setSubscriptionType(SubscriptionType.PRO);
+//            subscription.setTotalAmountPaid();
+//        }
 
         // Upgrade to next subscription
         SubscriptionType newSubscriptionType = SubscriptionType.values()[subscriptionType.ordinal() + 1];
